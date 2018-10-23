@@ -66,6 +66,21 @@ class TasksTableBuilder {
             }
         }
     }
+    getIndex(id) {
+        for (let ci = 0; ci < header.length; ci++) {
+            if (header[ci].id === columnId) {
+                return ci;
+            }
+        }
+        retun -1;
+    }
+    getSortById(id) {
+        const index = this.getIndex(id);
+        if (index && index === this._sortColumnIndex) {
+            return this._data.header[index].sortDir;
+        }
+        return -1;
+    }
     addTasks(tasks) {
         if (typeof tasks === 'object' && typeof tasks.length === 'number') {
             this._data.tasks = this._data.tasks.concat(tasks);
@@ -170,16 +185,23 @@ class CellView {
 //String View
 class CellStringView extends CellView {
     render() {
-        console.info('special rendering', this.view);
+        // console.info('special rendering', this.view);
         const id = this.view.getAttribute('id');
         const mode = this.view.dataset['mode'];
+        let sortDir = -1;
         if (id && mode === 'sortable') {
+            //sortDir = window.mmkTasksTableBuilder.getSortById(id);
             this.view.classList.add("sortable");
             // this is a header, need to listen for clicks!
             this.view.addEventListener('click', (evt) => {
                 window.mmkTasksTableBuilder.setSort(evt.target.id);
             });
         }
+        // let sortSymb = '';
+        // if (sortDir != -1) {
+        //     sortDir ? ' ^' : ' _';
+        // }
+        // this.view.innerHTML = `${this.view.textContent}${sortSymb}`;
         this.view.innerHTML = `${this.view.textContent}`;
     }
 }
