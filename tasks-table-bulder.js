@@ -32,12 +32,19 @@
 // }
 
 class TasksTableBuilder {
+    /**
+     * 
+     * @param {string} tableId HTML 'data-table' element's id 
+     * @param {object} data Data definition object, contains two arrays: header and tasks 
+     * @param {string} statusColumn column id from array header, that represent the status of task (used for showing gradient color on background) 
+     */
     constructor(tableId, data = null, statusColumn) {
         if (data && typeof data === 'object') {
             if (typeof data.header === 'object' && typeof data.header.length === 'number' &&
                 typeof data.tasks === 'object' && typeof data.tasks.length === 'number') {
                 this.saveTask = this.saveTask.bind(this);
                 this.deleteTask = this.deleteTask.bind(this);
+                this.canselEdit = this.canselEdit.bind(this);
                 this._tableId = tableId;
                 this._data = Object.assign({}, data);
                 this._sortId = -1;
@@ -51,7 +58,7 @@ class TasksTableBuilder {
                 // 1. build the headerin renderHeader()
                 // 2. build the data rows in external funcion 'renderData'
                 this.renderHeader();
-                this._statusColumnIndex = this.getIndex(statusColumn);
+                this._statusColumnIndex = this.getIndexByColumnId(statusColumn);
                 // now, lets sort data by specified index this._sortColumnIndex and build the rest of table...
                 if (this._sortColumnIndex != -1) {
                     this.sortTasks();
@@ -60,7 +67,12 @@ class TasksTableBuilder {
             }
         }
     }
-    getIndex(id) {
+    /**
+     * Finds and returns an index of column by its id in header section of data. 
+     * In case of index cannot be found, returns -1 
+     * @param {string} id Column id in header array
+     */
+    getIndexByColumnId(id) {
         const header = this._data.header;
         for (let ci = 0; ci < header.length; ci++) {
             if (header[ci].id === id) {
@@ -69,13 +81,30 @@ class TasksTableBuilder {
         }
         retun -1;
     }
-    getSortById(id) {
-        const index = this.getIndex(id);
-        if (index && index === this._sortColumnIndex) {
-            return this._data.header[index].sortDir;
+    /**
+     * Finds and returns an array of indexes of columns by any specified parameter in header section of data 
+     * In case of indexes cannot be found, returns an empty array
+     * For examle: this.getIndexesByParam('type', 'hidden') returns [5] (as defined in index.html data initialization script)
+     * and this.getIndexesByParam('type', 'date') returns [0,4]
+     * 
+     * @param {string} paramName The name of parameter in header array
+     * @param {string} paramValue The value of specified by paramName parameter
+     */
+    getIndexesByParam(paramName, paramValue) {
+        const header = this._data.header;
+        const ids = [];
+        for (let ci = 0; ci < header.length; ci++) {
+            if (header[ci][paramName] === paramValue) {
+                ids.push(ci);
+            }
         }
-        return -1;
+        return ids;
     }
+    /**
+     * Appends tasks into the table. The structure of the task must match 
+     * the structure transferred in the header by the number of columns. 
+     * @param {object} tasks 
+     */
     addTasks(tasks) {
         if (typeof tasks === 'object' && typeof tasks.length === 'number') {
             this._data.tasks = this._data.tasks.concat(tasks);
@@ -83,11 +112,19 @@ class TasksTableBuilder {
             this.rebuld();
         }
     }
+    /**
+     * Sorts tasks in the stored data objects and rebuilds the table.
+     * The current sorted column and sorting direction remains untoched
+     */
     rebuld() {
         this.sortTasks();
         this.renderHeader();
         this.renderData();
     }
+    /**
+     * Sorts the table after clicking on the column header
+     * @param {sting} columnId The column id
+     */
     setSort(columnId) {
         // find index by UNIQUE column id
         let index = -1;
@@ -111,6 +148,9 @@ class TasksTableBuilder {
         // now sort tasks and rebuild table!
         this.rebuld();
     }
+    /**
+     * Rebuild header of table
+     */
     renderHeader() {
         let rowDef;
         const header = this._data.header;
@@ -136,10 +176,27 @@ class TasksTableBuilder {
             this._headerDef = rowDef + '</data-row>';
         }
     }
+    /**
+     * Event handler for clicking the "Save" button in the task change form
+     * @param {object} evt 
+     */
     saveTask(evt) {
         evt.preventDefault();
-        if (evt.target.form[2].valueAsNumber <= evt.target.form[0].valueAsNumber) {
+
+        const tStart = evt.target.form[0].valueAsNumber;
+        const tEnd   = evt.target.form[2].valueAsNumber;
+        if (isNaN(tStart)) {
+            evt.target.form[0].classList.add('error');
+            return;
+        }
+        if (isNaN(tEnd)) {
+            evt.target.form[2].classList.add('error');
+            return;
+        }
+        if (tEnd <= tStart) {
             console.log('The start time cannot be greater than end time');
+            evt.target.form[0].classList.add('error');
+            evt.target.form[2].classList.add('error');
             return;
         }
         const taskIndex = evt.target.form.dataset['taskIndex'];
@@ -150,25 +207,52 @@ class TasksTableBuilder {
         //  in the header of the table, and differs from it by the presence of the additional word "Edit". 
         // By removing this word, we can find the corresponding field in the header, and hence in the array of tasks.
         for (let formIndex = 0; formIndex < 3; formIndex++) {
-            let paramIndex = window.mmkTasksTableBuilder.getIndex(evt.target.form[formIndex].id.replace('Edit',''));
+            let paramIndex = window.mmkTasksTableBuilder.getIndexByColumnId(evt.target.form[formIndex].id.replace('Edit',''));
             task[paramIndex] = evt.target.form[formIndex].value;
         }
-        evt.target.form.elements[3].removeEventListener('click', this.saveTask);
-        evt.target.form.elements[4].removeEventListener('click', this.deleteTask);
+        // remove event listeners
+        evt.target.form[3].removeEventListener('click', this.saveTask);
+        evt.target.form[4].removeEventListener('click', this.deleteTask);
+        evt.target.form[5].removeEventListener('click', this.canselEdit);
+        // hide form
         evt.target.form.classList.remove('shown');
+        // sort and rebuild table
         window.mmkTasksTableBuilder.rebuld();
     }
-
+    /**
+     * Event handler for clicking the "Delete" button in the task change form
+     * @param {object} evt 
+     */
     deleteTask(evt) {
         evt.preventDefault();
         const taskIndex = evt.target.form.dataset['taskIndex'];
+        // remove selected task
         window.mmkTasksTableBuilder._data.tasks.splice(taskIndex, 1);
-
-        evt.target.form.elements[3].removeEventListener('click', this.saveTask);
-        evt.target.form.elements[4].removeEventListener('click', this.deleteTask);
+        // remove event listeners
+        evt.target.form[3].removeEventListener('click', this.saveTask);
+        evt.target.form[4].removeEventListener('click', this.deleteTask);
+        evt.target.form[5].removeEventListener('click', this.canselEdit);
+        // hide form
         evt.target.form.classList.remove('shown');
+        // sort and rebuild table
         window.mmkTasksTableBuilder.rebuld();
     }
+    /**
+     * Event handler for clicking the "Cancel" button in the task change form
+     * @param {object} evt 
+     */
+    canselEdit(evt) {
+        evt.preventDefault();
+        // remove event listeners
+        evt.target.form[3].removeEventListener('click', this.saveTask);
+        evt.target.form[4].removeEventListener('click', this.deleteTask);
+        evt.target.form[5].removeEventListener('click', this.canselEdit);
+        // hide form
+        evt.target.form.classList.remove('shown');
+    }
+    /**
+     * Build tasks part of table
+     */
     renderData() {
         let tableDef = '',
             status,
@@ -208,7 +292,11 @@ class TasksTableBuilder {
             row.addEventListener('dblclick', (evt) => {
                 console.log(evt.currentTarget.id + ' task uuid=' + evt.currentTarget.dataset['uuid']);
                 const form = document.getElementById('changeTask');
-                const taskRect = evt.currentTarget.getBoundingClientRect();
+                // in case of double clicking on another row in table, while the form is opened, lets remove event listeners
+                form[3].removeEventListener('click', this.saveTask);
+                form[4].removeEventListener('click', this.deleteTask);
+                form[5].removeEventListener('click', this.canselEdit);
+                
                 // fill form
                 const taskIndex = parseInt(evt.currentTarget.id.replace('task-', ''), 10);
                 const task = window.mmkTasksTableBuilder._data.tasks[taskIndex];
@@ -220,19 +308,34 @@ class TasksTableBuilder {
                 //  in the header of the table, and differs from it by the presence of the additional word "Edit". 
                 // By removing this word, we can find the corresponding field in the header, and hence in the array of tasks.
                 for (let formIndex = 0; formIndex < 3; formIndex++) {
-                    let paramIndex = window.mmkTasksTableBuilder.getIndex(form[formIndex].id.replace('Edit',''));
+                    let paramIndex = window.mmkTasksTableBuilder.getIndexByColumnId(form[formIndex].id.replace('Edit',''));
                     form[formIndex].value = task[paramIndex];
                 }
+                // add event listeners on buttons
+                form[3].addEventListener('click', this.saveTask);
+                form[4].addEventListener('click', this.deleteTask);
+                form[5].addEventListener('click', this.canselEdit);
 
-                form.elements[3].addEventListener('click', this.saveTask);
-                form.elements[4].addEventListener('click', this.deleteTask);
-
+                // positioning the form just under selected task
+                const taskRect = evt.currentTarget.getBoundingClientRect();
                 form.style.setProperty('left', `${taskRect.left}px`);
                 form.style.setProperty('top', `${taskRect.bottom}px`);
+                // reset all prev classes
+                form[0].classList.remove('error');
+                form[2].classList.remove('error');
+        
+                // show the form
                 form.classList.add('shown');
+                // and centering it! (I cannot do this before form is shown!)
+                const formRect = form.getBoundingClientRect();
+                const leftPos = (taskRect.left + taskRect.width / 2) - formRect.width / 2;
+                form.style.setProperty('left', `${leftPos}px`);
             })
         })
     }
+    /**
+     * Sorting the table by stored column index
+     */
     sortTasks() {
         // this._data.tasks - an array of rows
         // this._sortColumnIndex - an index of column in this._data.header array
@@ -273,6 +376,11 @@ class TasksTableBuilder {
         });
     }
 }
+
+/**
+ * The custom table implementation
+ * Found on the Internet and adapted by me
+ */
 // View (MVC View)
 class CellView {
     constructor(view) {

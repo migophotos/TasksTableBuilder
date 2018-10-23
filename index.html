@@ -42,7 +42,7 @@
         }
         .changeTask {
             display: none;
-            background: gray;
+            background: lightgoldenrodyellow;
             border: 2px solid red;
             border-radius: 4px;            
             padding: 8px 10px 10px 10px;
@@ -56,6 +56,10 @@
         #changeTask label {
             margin: 0 8px 0 20px;
         }
+        input[type=time].error {
+            border: 2px solid red;
+            border-radius: 4px;
+        }
 
     </style>
     <body>
@@ -63,8 +67,9 @@
                 <label for='tStart'>Время начала:</label><input type='time' name='tStartEdit' id='tStartEdit'>
                 <label for='cUrgency'>Приоритет:</label><select name='cUrgencyEdit' id='cUrgencyEdit'><option value="0">0</option><option value="1">1</option><option value="2">2</option></select>
                 <label for='tEnd'>Время окончания:</label><input type='time' name='tEndEdit' id='tEndEdit'>
-                <button id="save" class="button" value="Save">Save</button>
-                <button id="delete" class="button" value="Delete">Delete</button>
+                <button id="save" type="button" value="Save">Save</button>
+                <button id="delete" type="button" value="Delete">Delete</button>
+                <button id="cancel" type="button" value="Delete">Cancel</button>
             </form> 
         <h4>Tasks Table</h4>
         <data-table id="table-01">
