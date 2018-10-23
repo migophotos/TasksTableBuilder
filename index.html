@@ -22,7 +22,7 @@
 
         data-row {
             display: table-row;
-            
+            cursor: pointer;
         }
 
         data-cell {
@@ -31,14 +31,41 @@
             border: 1px solid #ccc;
             padding: 2px;
         }
+        data-cell > img {
+            pointer-events: none;
+        }
         .header {
             background-color: rgb(238, 238, 238);
         }
         .sortable {
             cursor: pointer;
         }
+        .changeTask {
+            display: none;
+            background: gray;
+            border: 2px solid red;
+            border-radius: 4px;            
+            padding: 8px 10px 10px 10px;
+            position: absolute;
+            left: 100px;
+            top: 100px;
+        }
+        #changeTask.shown {
+            display: inline!important;
+        }
+        #changeTask label {
+            margin: 0 8px 0 20px;
+        }
+
     </style>
     <body>
+            <form id="changeTask" class="changeTask">
+                <label for='tStart'>Время начала:</label><input type='time' name='tStartEdit' id='tStartEdit'>
+                <label for='cUrgency'>Приоритет:</label><select name='cUrgencyEdit' id='cUrgencyEdit'><option value="0">0</option><option value="1">1</option><option value="2">2</option></select>
+                <label for='tEnd'>Время окончания:</label><input type='time' name='tEndEdit' id='tEndEdit'>
+                <button id="save" class="button" value="Save">Save</button>
+                <button id="delete" class="button" value="Delete">Delete</button>
+            </form> 
         <h4>Tasks Table</h4>
         <data-table id="table-01">
         </data-table>
@@ -46,6 +73,8 @@
             // init data table.
             // id:      unique identificator for each column
             // type:    the tipe of data in column. currently 'date', 'number' and 'string' are supported types. used for sorting tasks
+            //          'hidden' - means 'unvisible column'. Each data-cell in tasks gets attribute data-id='value'
+            //          for example: .... data-uuid="t-00001"....
             // mode:    enables sorting by column. any value exclude 'sortable' means disabled sorting by this column (see column 'tEnd' in example)
             // sortDir: 1 - sort down, 0 - sort up
             // isSort:  1 - means the table sorted by this column
@@ -53,16 +82,17 @@
             // the number of cells in tasks array must to be equals to count of columns definitions in the header array!
             const data = {
                 header: [
-                    { id: 'cStart', name: 'Время начала', type:'date', mode: 'sortable', sortDir: 1, isSort: 1, align:"center" },
+                    { id: 'tStart', name: 'Время начала', type:'date', mode: 'sortable', sortDir: 1, isSort: 1, align:"center" },
                     { id: 'cStatus', name: 'Статус', type:'number', mode: 'sortable', sortDir: 1, isSort: 0, align:"center" },
                     { id: 'cTask', name: 'Задача', type:'string', mode: 'sortable', sortDir: 1, isSort: 0, align:"left" },
                     { id: 'cUrgency', name: 'Приоритет', type:'number', mode: 'sortable', sortDir: 1, isSort: 0, align:"center" },
-                    { id: 'tEnd', name: 'Время окончания', type:'date', mode: 'none', sortDir: 1, isSort: 0, align:"center" }
+                    { id: 'tEnd', name: 'Время окончания', type:'date', mode: 'none', sortDir: 1, isSort: 0, align:"center" },
+                    { id: 'uuid', type:'hidden'}
                 ],
                 tasks: [
-                    ['10:00', '10%', 'Тепловоз Т-01 везет пустой состав на загрузку угля', 0, '10:20'],
-                    ['10:05', '40%', 'Тепловоз Т-02 везет состав на сортировочную станцию', 1, '10:20'],
-                    ['10:15', '92%', 'Тепловоз Т-01 едет на сортировочную станцию', 1, '10:25']
+                    ['10:00', '10%', 'Тепловоз Т-01 везет пустой состав на загрузку угля', 0, '10:20','t-00001'],
+                    ['10:05', '40%', 'Тепловоз Т-02 везет состав на сортировочную станцию', 1, '10:20','t-00002'],
+                    ['10:15', '92%', 'Тепловоз Т-01 едет на сортировочную станцию', 1, '10:25','t-00003']
                 ]
             }
             if (!window.mmkTasksTableBuilder) {
@@ -70,8 +100,8 @@
 
                 setTimeout(() => {
                     const tasks = [
-                        ['12:00', '0%', 'Тепловоз Т-01 везет отсортированный состав на разгрузку угля', 2, '13:20'],
-                        ['11:05', '0%', 'Тепловоз Т-02 ползет в депо на тех.обслуживание', 2, '11:30'],
+                        ['12:00', '0%', 'Тепловоз Т-01 везет отсортированный состав на разгрузку угля', 2, '13:20','t-00005'],
+                        ['11:05', '0%', 'Тепловоз Т-02 ползет в депо на тех.обслуживание', 2, '11:30','t-00006'],
                     ];
                     window.mmkTasksTableBuilder.addTasks(tasks);
 
