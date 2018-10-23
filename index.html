@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+    <header>
+        <meta charset="utf-8" />
+        <link rel="icon" href="favicon.png" />
+        <title>Custom table implementation</title>
+        <!-- <base href="../.." /> -->
+
+        <meta name="Description" content="Author: M. Goyberg,
+        MMK Tasks Table Builder">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta http-equiv="content-type" content="text/html;charset=utf-8">
+        <script src="webcomponents-bundle.js"></script>
+        <script src="tasks-table-bulder.js"></script>
+    </header>
+    <style>
+        data-table {
+            display: table ;
+            border-collapse: collapse ;
+            border: 1px solid gray ;
+        }
+
+        data-row {
+            display: table-row ;
+        }
+
+        data-cell {
+            display: table-cell ;
+            border: 1px solid #ccc ;
+            padding: 2px ;
+        }
+        .sortable {
+            cursor: pointer;
+        }
+    </style>
+    <body>
+        <h4>Tasks Table</h4>
+        <data-table id="table-01">
+        </data-table>
+        <script>
+            // init data table. 
+            // id:      unique identificator for each column  
+            // type:    the tipe of data in column. currently 'date', 'number' and 'string' are supported types. used for sorting tasks
+            // mode:    enables sorting by column. any value exclude 'sortable' means disabled sorting by this column (see column 'tEnd' in example)
+            const data = {
+                header: [
+                    { id: 'cStart', name: 'Время начала', type:'date', mode: 'sortable', sortDir: 1, isSort: 1 },
+                    { id: 'cStatus', name: 'Статус', type:'number', mode: 'sortable', sortDir: 1, isSort: 0 },
+                    { id: 'cTask', name: 'Задача', type:'string', mode: 'sortable', sortDir: 1, isSort: 0 },
+                    { id: 'cUrgency', name: 'Приоритет', type:'number', mode: 'sortable', sortDir: 1, isSort: 0 },
+                    { id: 'tEnd', name: 'Время окончания', type:'date', mode: 'none', sortDir: 1, isSort: 0 }
+                ],
+                tasks: [
+                    ['10:00', '10%', 'Тепловоз Т-01 везет пустой состав на загрузку угля', 0, '10:20'],
+                    ['10:05', '40%', 'Тепловоз Т-02 везет состав на сортировочную станцию', 1, '10:20'],
+                    ['10:15', '0%', 'Тепловоз Т-01 едет на сортировочную станцию', 1, '10:25']
+                ]
+            }
+            if (!window.mmkTasksTableBuilder) {
+                window.mmkTasksTableBuilder = new TasksTableBuilder("table-01", data);
+
+                setTimeout(() => {
+                    const tasks = [
+                        ['12:00', '0%', 'Тепловоз Т-01 везет отсортированный состав на разгрузку угля', 2, '13:20'],
+                        ['11:05', '0%', 'Тепловоз Т-02 ползет в депо на тех.обслуживание', 2, '11:30'],
+                    ];
+                    window.mmkTasksTableBuilder.addTasks(tasks);
+
+                }, 2000);
+            }
+        </script>
+    </body>
+</html>
