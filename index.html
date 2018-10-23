@@ -15,19 +15,23 @@
     </header>
     <style>
         data-table {
-            display: table ;
-            border-collapse: collapse ;
-            border: 1px solid gray ;
+            display: table;
+            border-collapse: collapse;
+            border: 1px solid gray;
         }
 
         data-row {
-            display: table-row ;
+            display: table-row;
         }
 
         data-cell {
-            display: table-cell ;
-            border: 1px solid #ccc ;
-            padding: 2px ;
+            display: table-cell;
+            min-width: 130px;
+            border: 1px solid #ccc;
+            padding: 2px;
+        }
+        .header {
+            background-color: rgb(238, 238, 238);
         }
         .sortable {
             cursor: pointer;
@@ -38,17 +42,17 @@
         <data-table id="table-01">
         </data-table>
         <script>
-            // init data table. 
-            // id:      unique identificator for each column  
+            // init data table.
+            // id:      unique identificator for each column
             // type:    the tipe of data in column. currently 'date', 'number' and 'string' are supported types. used for sorting tasks
             // mode:    enables sorting by column. any value exclude 'sortable' means disabled sorting by this column (see column 'tEnd' in example)
             const data = {
                 header: [
-                    { id: 'cStart', name: 'Время начала', type:'date', mode: 'sortable', sortDir: 1, isSort: 1 },
-                    { id: 'cStatus', name: 'Статус', type:'number', mode: 'sortable', sortDir: 1, isSort: 0 },
-                    { id: 'cTask', name: 'Задача', type:'string', mode: 'sortable', sortDir: 1, isSort: 0 },
-                    { id: 'cUrgency', name: 'Приоритет', type:'number', mode: 'sortable', sortDir: 1, isSort: 0 },
-                    { id: 'tEnd', name: 'Время окончания', type:'date', mode: 'none', sortDir: 1, isSort: 0 }
+                    { id: 'cStart', name: 'Время начала', type:'date', mode: 'sortable', sortDir: 1, isSort: 1, align:"center" },
+                    { id: 'cStatus', name: 'Статус', type:'number', mode: 'sortable', sortDir: 1, isSort: 0, align:"center" },
+                    { id: 'cTask', name: 'Задача', type:'string', mode: 'sortable', sortDir: 1, isSort: 0, align:"left" },
+                    { id: 'cUrgency', name: 'Приоритет', type:'number', mode: 'sortable', sortDir: 1, isSort: 0, align:"center" },
+                    { id: 'tEnd', name: 'Время окончания', type:'date', mode: 'none', sortDir: 1, isSort: 0, align:"center" }
                 ],
                 tasks: [
                     ['10:00', '10%', 'Тепловоз Т-01 везет пустой состав на загрузку угля', 0, '10:20'],

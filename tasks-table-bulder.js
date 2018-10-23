@@ -1,63 +1,51 @@
-// Object assign polifill
-if (typeof Object.assign != 'function') {
-    // Must be writable: true, enumerable: false, configurable: true
-    Object.defineProperty(Object, "assign", {
-        value: function assign(target, varArgs) { // .length of function is 2
-        'use strict';
-        if (target == null) { // TypeError if undefined or null
-            throw new TypeError('Cannot convert undefined or null to object');
-        }
+/* eslint-disable */
 
-        var to = Object(target);
+// // Object assign polifill
+// if (typeof Object.assign != 'function') {
+//     // Must be writable: true, enumerable: false, configurable: true
+//     Object.defineProperty(Object, "assign", {
+//         value: function assign(target, varArgs) { // .length of function is 2
+//         'use strict';
+//         if (target == null) { // TypeError if undefined or null
+//             throw new TypeError('Cannot convert undefined or null to object');
+//         }
 
-        for (var index = 1; index < arguments.length; index++) {
-            var nextSource = arguments[index];
+//         var to = Object(target);
 
-            if (nextSource != null) { // Skip over if undefined or null
-            for (var nextKey in nextSource) {
-                // Avoid bugs when hasOwnProperty is shadowed
-                if (Object.prototype.hasOwnProperty.call(nextSource, nextKey)) {
-                to[nextKey] = nextSource[nextKey];
-                }
-            }
-            }
-        }
-        return to;
-        },
-        writable: true,
-        configurable: true
-    });
-}
+//         for (var index = 1; index < arguments.length; index++) {
+//             var nextSource = arguments[index];
+
+//             if (nextSource != null) { // Skip over if undefined or null
+//             for (var nextKey in nextSource) {
+//                 // Avoid bugs when hasOwnProperty is shadowed
+//                 if (Object.prototype.hasOwnProperty.call(nextSource, nextKey)) {
+//                 to[nextKey] = nextSource[nextKey];
+//                 }
+//             }
+//             }
+//         }
+//         return to;
+//         },
+//         writable: true,
+//         configurable: true
+//     });
+// }
 
 class TasksTableBuilder {
     constructor(tableId, data = null) {
         if (data && typeof data === 'object') {
-            if (typeof data.header === 'object' && typeof data.header.length === 'number' && 
+            if (typeof data.header === 'object' && typeof data.header.length === 'number' &&
                 typeof data.tasks === 'object' && typeof data.tasks.length === 'number') {
 
                 this._tableId = tableId;
                 this._data = Object.assign({}, data);
                 this._sortId = -1;
                 this._headerDef = '';
-                this._colTypes = [];
-                
+
                 // two phases of table building:
-                // 1. build the header here
+                // 1. build the headerin renderHeader()
                 // 2. build the data rows in external funcion 'renderData'
-                let rowDef; 
-                for (let index = 0; index < data.header.length; index++) {
-                    if (index == 0) {
-                        this._headerDef = '<data-row>';
-                        rowDef = '';
-                    }
-                    const col = data.header[index];
-                    this._sortColumnIndex = col.isSort ? index : this._sortColumnIndex;
-                    rowDef += `<data-cell id="${col.id}" type="string" data-mode="${col.mode}">${col.name}</data-cell>`;
-                    this._colTypes.push(col.type);
-                }
-                if (rowDef.length) {
-                    this._headerDef = rowDef + '</data-row>';
-                }
+                this.renderHeader();
                 // now, lets sort data by specified index this._sortColumnIndex and build the rest of table...
                 if (this._sortColumnIndex != -1) {
                     this.sortTasks();
@@ -86,6 +74,7 @@ class TasksTableBuilder {
             this._data.tasks = this._data.tasks.concat(tasks);
             // now sort tasks and rebuild table!
             this.sortTasks();
+            this.renderHeader();
             this.renderData();
         }
     }
@@ -97,7 +86,7 @@ class TasksTableBuilder {
             if (header[ci].id === columnId) {
                 if (this._sortColumnIndex == ci) {
                     // reverse sort direction in this case!
-                    header[ci].sortDir = !header[ci].sortDir;
+                    header[ci].sortDir = header[ci].sortDir ? 0 : 1;
                 }
                 this._sortColumnIndex = ci;
                 index = ci;
@@ -111,10 +100,32 @@ class TasksTableBuilder {
         }
         // now sort tasks and rebuild table!
         this.sortTasks();
+        this.renderHeader();
         this.renderData();
     }
+    renderHeader() {
+        let rowDef;
+        const header = this._data.header;
+        this._colTypes = [];
+
+        for (let index = 0; index < header.length; index++) {
+            if (index == 0) {
+                this._headerDef = '<data-row>';
+                rowDef = '';
+            }
+            const col = header[index];
+            this._sortColumnIndex = col.isSort ? index : this._sortColumnIndex;
+            rowDef += `<data-cell id="${col.id}" class="header" style="text-align: center;"
+                        type="string"
+                        data-mode="${col.mode}" data-sort-Dir="${col.sortDir}" data-is-sort="${col.isSort}">${col.name}</data-cell>`;
+            this._colTypes.push(col.type);
+        }
+        if (rowDef.length) {
+            this._headerDef = rowDef + '</data-row>';
+        }
+    }
     renderData() {
-        let tableDef = '', 
+        let tableDef = '',
             rowDef = '';
 
         const tasks = this._data.tasks;
@@ -126,7 +137,7 @@ class TasksTableBuilder {
             }
             rowDef = '<data-row>';
             for (let ci = 0; ci < task.length; ci++) {
-                rowDef += `<data-cell type="${this._colTypes[ci]}">${task[ci]}</data-cell>`;
+                rowDef += `<data-cell  style="text-align:${this._data.header[ci].align};" type="${this._colTypes[ci]}">${task[ci]}</data-cell>`;
             }
             tableDef += rowDef + '</data-row>';
         }
@@ -170,8 +181,8 @@ class TasksTableBuilder {
             if (sortResult) {
                 sortResult = sortDir ? sortResult : -1 * sortResult;
             }
-            return sortResult; 
-        });    
+            return sortResult;
+        });
     }
 }
 // View (MVC View)
@@ -188,21 +199,23 @@ class CellStringView extends CellView {
         // console.info('special rendering', this.view);
         const id = this.view.getAttribute('id');
         const mode = this.view.dataset['mode'];
-        let sortDir = -1;
+        const isSort = Number(this.view.dataset['isSort']);
+        let sortDir = Number(this.view.dataset['sortDir']);
+        let sortSymb = '';
+
         if (id && mode === 'sortable') {
-            //sortDir = window.mmkTasksTableBuilder.getSortById(id);
             this.view.classList.add("sortable");
             // this is a header, need to listen for clicks!
             this.view.addEventListener('click', (evt) => {
                 window.mmkTasksTableBuilder.setSort(evt.target.id);
             });
+            if (isSort) {
+                sortSymb = sortDir ? 'sort-up.svg' : 'sort-down.svg';
+                this.view.innerHTML = `${this.view.textContent} <img pointer-events="none" src="${sortSymb}" alt="Sorting icon" width="8" height="8" >`;
+            }
+        } else {
+            this.view.innerHTML = `${this.view.textContent}`;
         }
-        // let sortSymb = '';
-        // if (sortDir != -1) {
-        //     sortDir ? ' ^' : ' _';
-        // }
-        // this.view.innerHTML = `${this.view.textContent}${sortSymb}`;
-        this.view.innerHTML = `${this.view.textContent}`;
     }
 }
 
