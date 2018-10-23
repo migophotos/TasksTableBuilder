@@ -32,7 +32,7 @@
 // }
 
 class TasksTableBuilder {
-    constructor(tableId, data = null) {
+    constructor(tableId, data = null, statusColumn) {
         if (data && typeof data === 'object') {
             if (typeof data.header === 'object' && typeof data.header.length === 'number' &&
                 typeof data.tasks === 'object' && typeof data.tasks.length === 'number') {
@@ -41,11 +41,14 @@ class TasksTableBuilder {
                 this._data = Object.assign({}, data);
                 this._sortId = -1;
                 this._headerDef = '';
+                this._rowStatusTemplateStart = 'background: linear-gradient(to right, rgb(112, 255, 109) 0%, rgb(238, 255, 5) ';
+                this._rowStatusTemplateEnd = '%, rgb(255, 99, 99) 100%);';
 
                 // two phases of table building:
                 // 1. build the headerin renderHeader()
                 // 2. build the data rows in external funcion 'renderData'
                 this.renderHeader();
+                this._statusColumnIndex = this.getIndex(statusColumn);
                 // now, lets sort data by specified index this._sortColumnIndex and build the rest of table...
                 if (this._sortColumnIndex != -1) {
                     this.sortTasks();
@@ -55,8 +58,9 @@ class TasksTableBuilder {
         }
     }
     getIndex(id) {
+        const header = this._data.header;
         for (let ci = 0; ci < header.length; ci++) {
-            if (header[ci].id === columnId) {
+            if (header[ci].id === id) {
                 return ci;
             }
         }
@@ -126,6 +130,7 @@ class TasksTableBuilder {
     }
     renderData() {
         let tableDef = '',
+            status,
             rowDef = '';
 
         const tasks = this._data.tasks;
@@ -135,9 +140,16 @@ class TasksTableBuilder {
                 console.error('Attention: the problem in data format! Continue without output');
                 continue;
             }
-            rowDef = '<data-row>';
+            const readyStatus = parseInt(task[this._statusColumnIndex], 10);
+            if (this._statusColumnIndex > -1 && readyStatus > 0) {
+                status = `${this._rowStatusTemplateStart}${readyStatus}${this._rowStatusTemplateEnd}`;
+                rowDef = `<data-row style="${status}">`;
+            } else {
+                rowDef = '<data-row>';
+            }
             for (let ci = 0; ci < task.length; ci++) {
-                rowDef += `<data-cell  style="text-align:${this._data.header[ci].align};" type="${this._colTypes[ci]}">${task[ci]}</data-cell>`;
+                
+                rowDef += `<data-cell type="${this._colTypes[ci]}" style="text-align:${this._data.header[ci].align};">${task[ci]}</data-cell>`;
             }
             tableDef += rowDef + '</data-row>';
         }

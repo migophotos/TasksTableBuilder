@@ -22,6 +22,7 @@
 
         data-row {
             display: table-row;
+            
         }
 
         data-cell {
@@ -61,11 +62,11 @@
                 tasks: [
                     ['10:00', '10%', 'Тепловоз Т-01 везет пустой состав на загрузку угля', 0, '10:20'],
                     ['10:05', '40%', 'Тепловоз Т-02 везет состав на сортировочную станцию', 1, '10:20'],
-                    ['10:15', '0%', 'Тепловоз Т-01 едет на сортировочную станцию', 1, '10:25']
+                    ['10:15', '92%', 'Тепловоз Т-01 едет на сортировочную станцию', 1, '10:25']
                 ]
             }
             if (!window.mmkTasksTableBuilder) {
-                window.mmkTasksTableBuilder = new TasksTableBuilder("table-01", data);
+                window.mmkTasksTableBuilder = new TasksTableBuilder("table-01", data, 'cStatus');
 
                 setTimeout(() => {
                     const tasks = [
