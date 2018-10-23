@@ -46,6 +46,10 @@
             // id:      unique identificator for each column
             // type:    the tipe of data in column. currently 'date', 'number' and 'string' are supported types. used for sorting tasks
             // mode:    enables sorting by column. any value exclude 'sortable' means disabled sorting by this column (see column 'tEnd' in example)
+            // sortDir: 1 - sort down, 0 - sort up
+            // isSort:  1 - means the table sorted by this column
+            // align:   data text aligning. the header text is centered alwase
+            // the number of cells in tasks array must to be equals to count of columns definitions in the header array!
             const data = {
                 header: [
                     { id: 'cStart', name: 'Время начала', type:'date', mode: 'sortable', sortDir: 1, isSort: 1, align:"center" },

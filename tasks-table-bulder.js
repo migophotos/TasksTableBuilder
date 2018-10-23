@@ -210,7 +210,7 @@ class CellStringView extends CellView {
                 window.mmkTasksTableBuilder.setSort(evt.target.id);
             });
             if (isSort) {
-                sortSymb = sortDir ? 'sort-up.svg' : 'sort-down.svg';
+                sortSymb = sortDir ? 'sort-down.svg' : 'sort-up.svg';
                 this.view.innerHTML = `${this.view.textContent} <img pointer-events="none" src="${sortSymb}" alt="Sorting icon" width="8" height="8" >`;
             }
         } else {
