@@ -1,42 +1,12 @@
 /* eslint-disable */
 
-// // Object assign polifill
-// if (typeof Object.assign != 'function') {
-//     // Must be writable: true, enumerable: false, configurable: true
-//     Object.defineProperty(Object, "assign", {
-//         value: function assign(target, varArgs) { // .length of function is 2
-//         'use strict';
-//         if (target == null) { // TypeError if undefined or null
-//             throw new TypeError('Cannot convert undefined or null to object');
-//         }
-
-//         var to = Object(target);
-
-//         for (var index = 1; index < arguments.length; index++) {
-//             var nextSource = arguments[index];
-
-//             if (nextSource != null) { // Skip over if undefined or null
-//             for (var nextKey in nextSource) {
-//                 // Avoid bugs when hasOwnProperty is shadowed
-//                 if (Object.prototype.hasOwnProperty.call(nextSource, nextKey)) {
-//                 to[nextKey] = nextSource[nextKey];
-//                 }
-//             }
-//             }
-//         }
-//         return to;
-//         },
-//         writable: true,
-//         configurable: true
-//     });
-// }
 
 class TasksTableBuilder {
     /**
-     * 
-     * @param {string} tableId HTML 'data-table' element's id 
-     * @param {object} data Data definition object, contains two arrays: header and tasks 
-     * @param {string} statusColumn column id from array header, that represent the status of task (used for showing gradient color on background) 
+     *
+     * @param {string} tableId HTML 'data-table' element's id
+     * @param {object} data Data definition object, contains two arrays: header and tasks
+     * @param {string} statusColumn column id from array header, that represent the status of task (used for showing gradient color on background)
      */
     constructor(tableId, data = null, statusColumn) {
         if (data && typeof data === 'object') {
@@ -68,8 +38,8 @@ class TasksTableBuilder {
         }
     }
     /**
-     * Finds and returns an index of column by its id in header section of data. 
-     * In case of index cannot be found, returns -1 
+     * Finds and returns an index of column by its id in header section of data.
+     * In case of index cannot be found, returns -1
      * @param {string} id Column id in header array
      */
     getIndexByColumnId(id) {
@@ -82,11 +52,11 @@ class TasksTableBuilder {
         retun -1;
     }
     /**
-     * Finds and returns an array of indexes of columns by any specified parameter in header section of data 
+     * Finds and returns an array of indexes of columns by any specified parameter in header section of data
      * In case of indexes cannot be found, returns an empty array
      * For examle: this.getIndexesByParam('type', 'hidden') returns [5] (as defined in index.html data initialization script)
      * and this.getIndexesByParam('type', 'date') returns [0,4]
-     * 
+     *
      * @param {string} paramName The name of parameter in header array
      * @param {string} paramValue The value of specified by paramName parameter
      */
@@ -101,9 +71,9 @@ class TasksTableBuilder {
         return ids;
     }
     /**
-     * Appends tasks into the table. The structure of the task must match 
-     * the structure transferred in the header by the number of columns. 
-     * @param {object} tasks 
+     * Appends tasks into the table. The structure of the task must match
+     * the structure transferred in the header by the number of columns.
+     * @param {object} tasks
      */
     addTasks(tasks) {
         if (typeof tasks === 'object' && typeof tasks.length === 'number') {
@@ -178,7 +148,7 @@ class TasksTableBuilder {
     }
     /**
      * Event handler for clicking the "Save" button in the task change form
-     * @param {object} evt 
+     * @param {object} evt
      */
     saveTask(evt) {
         evt.preventDefault();
@@ -206,7 +176,7 @@ class TasksTableBuilder {
 
         // Fill the task paarts with data from form
         // Note: The id of the input elements in the form coincides with the id of the corresponding elements
-        //  in the header of the table, and differs from it by the presence of the additional word "Edit". 
+        //  in the header of the table, and differs from it by the presence of the additional word "Edit".
         // By removing this word, we can find the corresponding field in the header, and hence in the array of tasks.
         for (let formIndex = 0; formIndex < 3; formIndex++) {
             let paramIndex = window.mmkTasksTableBuilder.getIndexByColumnId(evt.target.form[formIndex].id.replace('Edit',''));
@@ -223,7 +193,7 @@ class TasksTableBuilder {
     }
     /**
      * Event handler for clicking the "Delete" button in the task change form
-     * @param {object} evt 
+     * @param {object} evt
      */
     deleteTask(evt) {
         evt.preventDefault();
@@ -241,7 +211,7 @@ class TasksTableBuilder {
     }
     /**
      * Event handler for clicking the "Cancel" button in the task change form
-     * @param {object} evt 
+     * @param {object} evt
      */
     canselEdit(evt) {
         evt.preventDefault();
@@ -298,16 +268,16 @@ class TasksTableBuilder {
                 form[3].removeEventListener('click', this.saveTask);
                 form[4].removeEventListener('click', this.deleteTask);
                 form[5].removeEventListener('click', this.canselEdit);
-                
+
                 // fill form
                 const taskIndex = parseInt(evt.currentTarget.id.replace('task-', ''), 10);
                 const task = window.mmkTasksTableBuilder._data.tasks[taskIndex];
                 // store selected task index in dataset
                 form.dataset['taskIndex'] = taskIndex;
-                
+
                 // Fill the form's inputs with data from selected task
                 // Note: The id of the input elements in the form coincides with the id of the corresponding elements
-                //  in the header of the table, and differs from it by the presence of the additional word "Edit". 
+                //  in the header of the table, and differs from it by the presence of the additional word "Edit".
                 // By removing this word, we can find the corresponding field in the header, and hence in the array of tasks.
                 for (let formIndex = 0; formIndex < 3; formIndex++) {
                     let paramIndex = window.mmkTasksTableBuilder.getIndexByColumnId(form[formIndex].id.replace('Edit',''));
@@ -325,7 +295,7 @@ class TasksTableBuilder {
                 // reset all prev classes
                 form[0].classList.remove('error');
                 form[2].classList.remove('error');
-        
+
                 // show the form
                 form.classList.add('shown');
                 // and centering it! (I cannot do this before form is shown!)
