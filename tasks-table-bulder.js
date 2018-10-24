@@ -183,8 +183,10 @@ class TasksTableBuilder {
     saveTask(evt) {
         evt.preventDefault();
 
-        const tStart = evt.target.form[0].valueAsNumber;
-        const tEnd   = evt.target.form[2].valueAsNumber;
+        const regex = new RegExp(':', 'g');
+        const tStart = parseInt(evt.target.form[0].value.replace(regex, ''), 10);
+        const tEnd   = parseInt(evt.target.form[2].value.replace(regex, ''), 10);
+
         if (isNaN(tStart)) {
             evt.target.form[0].classList.add('error');
             return;
