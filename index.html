@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-    <header>
+    <head>
         <meta charset="utf-8" />
         <link rel="icon" href="favicon.png" />
         <title>Custom table implementation</title>
@@ -10,67 +10,66 @@
         MMK Tasks Table Builder">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta http-equiv="content-type" content="text/html;charset=utf-8">
-        <script src="webcomponents-bundle.js"></script>
         <script src="tasks-table-bulder.js"></script>
-    </header>
-    <style>
-        data-table {
-            display: table;
-            border-collapse: collapse;
-            border: 1px solid gray;
-        }
+        <style>
+            data-table {
+                display: table;
+                border-collapse: collapse;
+                border: 1px solid gray;
+            }
 
-        data-row {
-            display: table-row;
-            cursor: pointer;
-        }
+            data-row {
+                display: table-row;
+                cursor: pointer;
+            }
 
-        data-cell {
-            display: table-cell;
-            min-width: 130px;
-            border: 1px solid #ccc;
-            padding: 2px;
-        }
-        data-cell > img {
-            pointer-events: none;
-        }
-        .header {
-            background-color: rgb(238, 238, 238);
-        }
-        .sortable {
-            cursor: pointer;
-        }
-        .changeTask {
-            display: none;
-            background: lightgoldenrodyellow;
-            border: 2px solid red;
-            border-radius: 4px;            
-            padding: 8px 10px 10px 10px;
-            position: absolute;
-            left: 100px;
-            top: 100px;
-        }
-        #changeTask.shown {
-            display: inline!important;
-        }
-        #changeTask label {
-            margin: 0 8px 0 20px;
-        }
-        input[type=time].error {
-            border: 2px solid red;
-            border-radius: 4px;
-        }
+            data-cell {
+                display: table-cell;
+                min-width: 130px;
+                border: 1px solid #ccc;
+                padding: 2px;
+            }
+            data-cell > img {
+                pointer-events: none;
+            }
+            .header {
+                background-color: rgb(238, 238, 238);
+            }
+            .sortable {
+                cursor: pointer;
+            }
+            .changeTask {
+                display: none;
+                background: lightgoldenrodyellow;
+                border: 2px solid red;
+                border-radius: 4px;
+                padding: 8px 10px 10px 10px;
+                position: absolute;
+                left: 100px;
+                top: 100px;
+            }
+            #changeTask.shown {
+                display: inline!important;
+            }
+            #changeTask label {
+                margin: 0 8px 0 20px;
+            }
+            input[type=time].error {
+                border: 2px solid red;
+                border-radius: 4px;
+            }
 
-    </style>
+        </style>
+    </head>
     <body>
-            <form id="changeTask" class="changeTask">
-                <label for='tStart'>Время начала:</label><input type='time' name='tStartEdit' id='tStartEdit'>
-                <label for='cUrgency'>Приоритет:</label><select name='cUrgencyEdit' id='cUrgencyEdit'><option value="0">0</option><option value="1">1</option><option value="2">2</option></select>
-                <label for='tEnd'>Время окончания:</label><input type='time' name='tEndEdit' id='tEndEdit'>
-                <button id="save" type="button" value="Save">Save</button>
-                <button id="delete" type="button" value="Delete">Delete</button>
-                <button id="cancel" type="button" value="Delete">Cancel</button>
-            </form> 
+        <form id="changeTask" class="changeTask">
+            <label for='tStart'>Время начала:</label><input type='time' name='tStartEdit' id='tStartEdit'>
+            <label for='cUrgency'>Приоритет:</label><select name='cUrgencyEdit' id='cUrgencyEdit'><option value="0">0</option><option value="1">1</option><option value="2">2</option></select>
+            <label for='tEnd'>Время окончания:</label><input type='time' name='tEndEdit' id='tEndEdit'>
+            <button id="save" type="button" value="Save">Save</button>
+            <button id="delete" type="button" value="Delete">Delete</button>
+            <button id="cancel" type="button" value="Delete">Cancel</button>
+        </form>
         <h4>Tasks Table</h4>
         <data-table id="table-01">
         </data-table>
