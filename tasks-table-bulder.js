@@ -381,7 +381,7 @@ class CellStringView extends CellView {
                 sortSymb = sortDir ? 'sort-up.svg' : 'sort-down.svg';
                 this.view.innerHTML = `${this.view.textContent} <img src="${sortSymb}" alt="Sorting icon" width="8" height="8" >`;
             }
-        } else {
+        } else if (this.view.textContent !== '') {
             this.view.innerHTML = `${this.view.textContent}`;
         }
     }
